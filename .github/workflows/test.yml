@@ -20,10 +20,8 @@ jobs:
           vercel link --yes --token=${{ env.VERCEL_TOKEN }}
           vercel env pull .env.vercel --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
 
-          touch .env
-          cat .env.vercel >> .env
+          cat .env.vercel >> $GITHUB_ENV
 
       - name: test foo
         run: |
-          source .env
           vercel env pull .env.local --yes --environment=production --token=$FOO
