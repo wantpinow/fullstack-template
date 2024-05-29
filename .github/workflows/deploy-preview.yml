@@ -59,6 +59,9 @@ jobs:
         run: |
           echo "printing .env.local file:"
           cat .env.local
+          echo "printing $GITHUB_ENV file:"
+          cat $GITHUB_ENV
+          source $GITHUB_ENV
           export SKIP_ENV_VALIDATION=true
           source .env.local
           bun run db:migrate
