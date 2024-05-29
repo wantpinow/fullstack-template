@@ -62,9 +62,6 @@ jobs:
 
       - name: Run Drizzle Migration
         run: |
-          set -a
-          source .env.local || true
-          set +a
           bun run db:migrate
 
       # - name: Update DB user IDs to match Clerk development environment
