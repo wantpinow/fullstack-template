@@ -22,7 +22,7 @@ jobs:
           source .env.local
 
       - name: Print FOO
-        run: echo $FOO
+        run: echo "foo is $FOO"
 
       - name: Build Project Artifacts
         run: vercel build --prod --token=${{ env.VERCEL_TOKEN }}
