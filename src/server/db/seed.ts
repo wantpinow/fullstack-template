@@ -15,7 +15,7 @@ export const seed = async () => {
     .insert(users)
     .values([
       {
-        id: "user_2h8vV8hl77MC2Fy5oTkvGRAtvof",
+        id: "user_2h9Ns7sxxctIVP2bVIGEci3Dt6h",
         email: "patrick@frenett.net",
         firstName: "Patrick",
         lastName: "Frenett",

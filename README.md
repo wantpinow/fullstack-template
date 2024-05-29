@@ -5,6 +5,7 @@
 - [ ] Sign up for a Clerk account
 - [ ] Create a new project. This project is set up for the `email` provider only. Make sure that the `personal_information -> name` option is set and required for all users. You can (and should) add more providers, just make sure that they have the name field set and required.
 - [ ] Add development NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY to `.env`
+- [ ] Create a production Clerk instance
 
 ### Running Locally
 
@@ -18,11 +19,16 @@ bun run db:reset
 bun dev
 ```
 
-Create a new user
+Create a user in the dev environment.
 
 ### Seeding Locally
 
-Get your user details from Clerk and add them to `src/server/db/seed.ts`
+Get your user details from Clerk and add them to `src/server/db/seed.ts`. You should now be able to add yeets locally.
+
+### Set up Neon
+
+- [ ] Sign up for a Neon account
+- [ ] Create a new project
 
 ### Setting up GH Action, Deploying to Vercel
 
