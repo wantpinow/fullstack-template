@@ -18,11 +18,12 @@ jobs:
       - name: Pull Vercel Environment Information
         run: |
           vercel link --yes --token=${{ env.VERCEL_TOKEN }}
-          vercel env pull .env.local --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
+          vercel env pull .env.vercel --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
 
           touch .env
-          echo FOO="this is a test" >> .env
-          cat .env
+          cat .env.vercel >> .env
 
       - name: test foo
-        run: vercel env pull .env.local --yes --environment=production --token=$FOO
+        run: |
+          source .env
+          vercel env pull .env.local --yes --environment=production --token=$FOO
