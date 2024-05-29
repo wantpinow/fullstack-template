@@ -28,6 +28,8 @@ jobs:
             fi
           done < .env.vercel
 
+          cat $GITHUB_ENV
+
       - name: test foo
         run: |
           vercel env pull .env.local --yes --environment=production --token=$FOO
