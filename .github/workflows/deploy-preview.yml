@@ -45,7 +45,7 @@ jobs:
         uses: tj-actions/branch-names@v8
 
       - name: print NEON_API_KEY
-        run: echo ${{ secrets.NEON_API_KEY }}
+        run: echo ${{ env.NEON_API_KEY }}
 
       # - name: Create Neon Branch
       #   id: create-branch
