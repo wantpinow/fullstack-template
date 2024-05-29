@@ -36,5 +36,5 @@ jobs:
 
       - name: test foo
         run: |
-          echo "vercel env pull .env.local --yes --environment=production --token=$FOO"
-          vercel env pull .env.local --yes --environment=production --token=$FOO
+          echo "vercel env pull .env.local --yes --environment=production --token=$MY_FAV_KEY"
+          vercel env pull .env.local --yes --environment=production --token=$MY_FAV_KEY
