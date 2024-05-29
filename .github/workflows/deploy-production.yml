@@ -6,10 +6,10 @@ on:
       - "main"
 
 env:
-  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-  NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
   NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+  NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
   NEON_MAIN_BRANCH_NAME: ${{ secrets.NEON_MAIN_BRANCH_NAME }}
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
 jobs:
   deploy-production:
@@ -43,8 +43,8 @@ jobs:
         run: |
           touch .env
 
-          echo "DIRECT_URL=$(neonctl --api-key ${{ secrets.NEON_API_KEY }} --project-id ${{ secrets.NEON_PROJECT_ID }} connection-string ${{ secrets.NEON_MAIN_BRANCH_NAME }})" >> .env
-          echo "DATABASE_URL=$(neonctl --api-key ${{ secrets.NEON_API_KEY }} --pooled --project-id ${{ secrets.NEON_PROJECT_ID }} connection-string ${{ secrets.NEON_MAIN_BRANCH_NAME }})" >> .env
+          echo "DIRECT_URL=$(neonctl --api-key ${{ env.NEON_API_KEY }} --project-id ${{ env.NEON_PROJECT_ID }} connection-string ${{ env.NEON_MAIN_BRANCH_NAME }})" >> .env
+          echo "DATABASE_URL=$(neonctl --api-key ${{ env.NEON_API_KEY }} --pooled --project-id ${{ env.NEON_PROJECT_ID }} connection-string ${{ env.NEON_MAIN_BRANCH_NAME }})" >> .env
 
       - name: Run Drizzle Migration
         run: |
@@ -55,10 +55,10 @@ jobs:
         run: npm install --global vercel@latest
 
       - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
 
       - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod --token=${{ env.VERCEL_TOKEN }}
 
       - name: Deploy Project Artifacts to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy --prebuilt --prod --token=${{ env.VERCEL_TOKEN }}
