@@ -31,7 +31,7 @@ jobs:
       - name: Pull Vercel Environment Information
         run: |
           vercel link --yes --token=${{ env.VERCEL_TOKEN }}
-          vercel env pull .env.vercel --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
+          vercel env pull .env.vercel --yes --environment=preview --token=${{ env.VERCEL_TOKEN }}
           while IFS= read -r line || [ -n "$line" ]; do
             # Ignore lines that are comments or empty
             if [[ ! "$line" =~ ^#.*$ ]] && [[ ! -z "$line" ]]; then
