@@ -18,7 +18,7 @@ jobs:
       - name: Pull Vercel Environment Information
         run: |
           vercel link --yes --token=${{ env.VERCEL_TOKEN }}
-          vercel env pull .env.vercel --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
+          vercel env pull .env.vercel --yes --environment=development --token=${{ env.VERCEL_TOKEN }}
 
           #   cat .env.vercel >> "$GITHUB_ENV"
           echo "printing .env.vercel file"
@@ -34,7 +34,7 @@ jobs:
           echo "printing github env"
           cat $GITHUB_ENV
 
-      - name: test foo
-        run: |
-          echo "vercel env pull .env.local --yes --environment=production --token=$MY_FAV_KEY"
-          vercel env pull .env.local --yes --environment=production --token=$MY_FAV_KEY
+    #   - name: test foo
+    #     run: |
+    #       echo "vercel env pull .env.local --yes --environment=production --token=$MY_FAV_KEY"
+    #       vercel env pull .env.local --yes --environment=production --token=$MY_FAV_KEY
