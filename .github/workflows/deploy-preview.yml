@@ -56,7 +56,7 @@ jobs:
           branch_name: preview/pr-${{ github.event.number }}-${{ steps.branch-name.outputs.current_branch }}
           username: neondb_owner
           database: neondb
-          api_key: ${{ secrets.NEON_API_KEY }}
+          api_key: $(echo ${{ env.NEON_API_KEY }})
           # api_key: checkitout
 
       # - name: Prepare .env file
