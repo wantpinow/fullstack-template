@@ -51,12 +51,12 @@ jobs:
         id: create-branch
         uses: neondatabase/create-branch-action@v5
         with:
-          project_id: ${{ env.NEON_PROJECT_ID }}
+          project_id: morning-dew-33574659
           parent: main
           branch_name: preview/pr-${{ github.event.number }}-${{ steps.branch-name.outputs.current_branch }}
-          username: ${{ env.NEON_DATABASE_USERNAME }}
-          database: ${{ env.NEON_DATABASE_NAME }}
-          api_key: ${{ env.NEON_API_KEY }}
+          username: neondb_owner
+          database: neondb
+          api_key: zbaj7wh62k7z3mt71j7suurvotbqqx107n9uv6l74ggk9zv5sdwyhz2my4xre2qy
           # api_key: checkitout
 
       # - name: Prepare .env file
