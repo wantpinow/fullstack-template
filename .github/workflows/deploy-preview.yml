@@ -39,6 +39,7 @@ jobs:
             fi
           done < .env.vercel
           rm .env.vercel
+          cat $GITHUB_ENV
 
       - name: Get branch name
         id: branch-name
