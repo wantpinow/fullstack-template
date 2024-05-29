@@ -1,0 +1,27 @@
+name: Test Env Vars
+
+on: [pull_request]
+
+env:
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+jobs:
+  test-envs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: |
+          vercel env pull .env.local --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
+          source .env.local
+
+      - name: Print FOO
+        run: echo $FOO
+
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ env.VERCEL_TOKEN }}
