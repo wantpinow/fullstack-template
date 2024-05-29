@@ -20,7 +20,7 @@ jobs:
           vercel link --yes --token=${{ env.VERCEL_TOKEN }}
           vercel env pull .env.local --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
           source .env.local
-          run: echo "foo is $FOO"
+          echo "foo is $FOO"
 
       - name: Print FOO
         run: echo "foo is $FOO"
