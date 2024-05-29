@@ -11,6 +11,11 @@
 
 Make sure you have Docker installed and running on your machine, then run the following command to start the database:
 
+```
+vercel link --yes
+vercel env pull .env.local --yes --environment=development
+```
+
 ```bash
 bun run db:reset
 ```

@@ -1,0 +1,89 @@
+name: Deploy Preview
+
+on: [pull_request]
+
+env:
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+jobs:
+  deploy-preview:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    environment:
+      name: Preview
+      url: ${{ steps.deploy.outputs.preview_url }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: bun install
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: |
+          vercel link --yes --token=${{ env.VERCEL_TOKEN }}
+          vercel env pull .env.vercel --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
+          while IFS= read -r line || [ -n "$line" ]; do
+            # Ignore lines that are comments or empty
+            if [[ ! "$line" =~ ^#.*$ ]] && [[ ! -z "$line" ]]; then
+              echo "$line" >> $GITHUB_ENV
+            fi
+          done < .env.vercel
+          rm .env.vercel
+
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v8
+
+      - name: Create Neon Branch
+        id: create-branch
+        uses: neondatabase/create-branch-action@v4
+        with:
+          project_id: $NEON_PROJECT_ID
+          parent: main
+          branch_name: preview/pr-${{ github.event.number }}-${{ steps.branch-name.outputs.current_branch }}
+          username: $NEON_DATABASE_USERNAME
+          database: $NEON_DATABASE_NAME
+          api_key: $NEON_API_KEY
+
+      - name: Prepare .env file
+        run: |
+          touch .env
+          echo DATABASE_URL=${{ steps.create-branch.outputs.db_url_with_pooler }}?sslmode=require >> .env
+          echo DIRECT_URL=${{ steps.create-branch.outputs.db_url }}?sslmode=require >> .env
+
+      - name: Run Drizzle Migration
+        run: |
+          export SKIP_ENV_VALIDATION=true
+          export DATABASE_URL=${{ steps.create-branch.outputs.db_url_with_pooler }}?sslmode=require
+          bun run db:migrate
+
+      - name: Update DB user IDs to match Clerk development environment
+        run: |
+          export SKIP_ENV_VALIDATION=true
+          export DATABASE_URL=${{ steps.create-branch.outputs.db_url_with_pooler }}?sslmode=require
+          bun run db:update-users-prod-to-dev
+
+      - name: Build Project Artifacts
+        run: vercel build --token=${{ env.VERCEL_TOKEN }}
+
+      - name: Deploy Preview to Vercel
+        id: deploy
+        run: echo preview_url=$(vercel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }}) >> $GITHUB_OUTPUT
+
+      - name: Comment on Pull Request
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          GITHUB_TOKEN: ${{ env.GH_TOKEN }}
+          message: |
+            Vercel Preview URL :rocket: : ${{ steps.deploy.outputs.preview_url }}
+            Neon branch :elephant: : https://console.neon.tech/app/projects/$NEON_PROJECT_ID/branches/${{ steps.create-branch.outputs.branch_id }}
