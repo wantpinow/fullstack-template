@@ -5,6 +5,11 @@ on: [pull_request]
 env:
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+  NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+  NEON_MAIN_BRANCH_NAME: ${{ secrets.NEON_MAIN_BRANCH_NAME }}
+  NEON_DATABASE_NAME: ${{ secrets.NEON_DATABASE_NAME }}
+  NEON_DATABASE_USERNAME: ${{ secrets.NEON_DATABASE_USERNAME }}
 
 jobs:
   deploy-preview:
@@ -28,36 +33,20 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Pull Vercel Environment Information
-        run: |
-          vercel link --yes --token=${{ env.VERCEL_TOKEN }}
-          vercel env pull .env.vercel --yes --environment=preview --token=${{ env.VERCEL_TOKEN }}
-          while IFS= read -r line || [ -n "$line" ]; do
-            # Ignore lines that are comments or empty
-            if [[ ! "$line" =~ ^#.*$ ]] && [[ ! -z "$line" ]]; then
-              echo "$line" >> $GITHUB_ENV
-            fi
-          done < .env.vercel
-          rm .env.vercel
-
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@v8
-
-      - name: echo api key
-        run: echo "api key is '${{ env.NEON_API_KEY }}'"
 
       - name: Create Neon Branch
         id: create-branch
         uses: neondatabase/create-branch-action@v5
         with:
-          project_id: morning-dew-33574659
-          parent: main
+          project_id: ${{ env.NEON_PROJECT_ID }}
+          parent: ${{ env.NEON_MAIN_BRANCH_NAME }}
           branch_name: preview/pr-${{ github.event.number }}-${{ steps.branch-name.outputs.current_branch }}
-          username: neondb_owner
-          database: neondb
-          api_key: $(echo ${{ env.NEON_API_KEY }})
-          # api_key: checkitout
+          username: ${{ env.NEON_DATABASE_USERNAME }}
+          database: ${{ env.NEON_DATABASE_NAME }}
+          api_key: ${{ env.NEON_API_KEY }}
 
       # - name: Prepare .env file
       #   run: |
