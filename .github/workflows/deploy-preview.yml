@@ -39,11 +39,13 @@ jobs:
             fi
           done < .env.vercel
           rm .env.vercel
-          cat $GITHUB_ENV
 
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@v8
+
+      - name: echo api key
+        run: echo "api key is '${{ env.NEON_API_KEY }}'"
 
       - name: Create Neon Branch
         id: create-branch
