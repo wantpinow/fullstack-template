@@ -56,20 +56,18 @@ jobs:
           database: ${{ env.NEON_DATABASE_NAME }}
           api_key: ${{ env.NEON_API_KEY }}
 
-      - name: Prepare .env file
+      - name: Prepare $GITHUB_ENV
         run: |
-          touch .env
-          cat $GITHUB_ENV >> .env
-          echo DATABASE_URL=${{ steps.create-branch.outputs.db_url_with_pooler }}?sslmode=require >> .env
-          echo DIRECT_URL=${{ steps.create-branch.outputs.db_url }}?sslmode=require >> .env
+          echo DATABASE_URL=${{ steps.create-branch.outputs.db_url_with_pooler }}?sslmode=require >> $GITHUB_ENV
+          echo DIRECT_URL=${{ steps.create-branch.outputs.db_url }}?sslmode=require >> $GITHUB_ENV
 
       - name: Run Drizzle Migration
         run: |
-          bun run --env-file=.env db:migrate
+          bun run --env-file=$GITHUB_ENV db:migrate
 
       # - name: Update DB user IDs to match Clerk development environment (only neccessary if there is a production Clerk environment)
       #   run: |
-      #     bun run --env-file=.env db:update-users-prod-to-dev
+      #     bun run --env-file=$GITHUB_ENV db:update-users-prod-to-dev
 
       - name: Build Project Artifacts
         run: vercel build --token=${{ env.VERCEL_TOKEN }}
