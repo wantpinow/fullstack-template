@@ -76,10 +76,25 @@ jobs:
       #   id: deploy
       #   run: echo preview_url=$(vercel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }} -e CLERK_SECRET_KEY=${{ env.CLERK_SECRET_KEY }}) >> $GITHUB_OUTPUT
 
+      # 2024-05-30T03:26:08.360Z    DATABASE_URL: [ 'Required' ],
+      # 2024-05-30T03:26:08.360Z    CLERK_SECRET_KEY: [ 'Required' ],
+      # 2024-05-30T03:26:08.360Z    CLERK_WEBHOOK_SECRET: [ 'Required' ],
+      # 2024-05-30T03:26:08.361Z    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: [ 'Required' ],
+      # 2024-05-30T03:26:08.361Z    NEXT_PUBLIC_CLERK_SIGN_IN_URL: [ 'Required' ],
+      # 2024-05-30T03:26:08.361Z    NEXT_PUBLIC_CLERK_SIGN_UP_URL: [ 'Required' ]
+
       - name: Build and Deploy to Vercel
         id: deploy
         run: |
-          echo preview_url=$(eval "vercel deploy --token=${{ env.VERCEL_TOKEN }} $(grep -v '^#' $GITHUB_ENV | grep '=' | awk '{print "-e " $0 " -b " $0}' | tr '\n' ' ')") >> $GITHUB_ENV
+          touch .env.local
+          echo DATABASE_URL=${{ env.DATABASE_URL }} >> .env.local
+          echo CLERK_SECRET_KEY=${{ env.CLERK_SECRET_KEY }} >> .env.local
+          echo CLERK_WEBHOOK_SECRET=${{ env.CLERK_WEBHOOK_SECRET }} >> .env.local
+          echo NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }} >> .env.local
+          echo NEXT_PUBLIC_CLERK_SIGN_IN_URL=${{ env.NEXT_PUBLIC_CLERK_SIGN_IN_URL }} >> .env.local
+          echo NEXT_PUBLIC_CLERK_SIGN_UP_URL=${{ env.NEXT_PUBLIC_CLERK_SIGN_UP_URL }} >> .env.local
+
+          echo preview_url=$(eval "vercel deploy --token=${{ env.VERCEL_TOKEN }} $(grep -v '^#' .env.local | grep '=' | awk '{print "-e " $0 " -b " $0}' | tr '\n' ' ')") >> $GITHUB_ENV
 
       - name: Comment on Pull Request
         uses: thollander/actions-comment-pull-request@v2
