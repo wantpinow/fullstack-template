@@ -6,10 +6,13 @@ on:
       - "main"
 
 env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
   NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
   NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
   NEON_MAIN_BRANCH_NAME: ${{ secrets.NEON_MAIN_BRANCH_NAME }}
+  NEON_DATABASE_NAME: ${{ secrets.NEON_DATABASE_NAME }}
+  NEON_DATABASE_USERNAME: ${{ secrets.NEON_DATABASE_USERNAME }}
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
   CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
   CLERK_WEBHOOK_SECRET: ${{ secrets.CLERK_WEBHOOK_SECRET }}
@@ -22,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: Production
-      url: https://fullstack-template-mu.vercel.app
+      url: ${{ steps.deploy.outputs.preview_url }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -32,32 +35,35 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Install neonctl
-        run: npm i -g neonctl@1
-
       - name: Install Dependencies
         run: bun install
+
+      - name: Install neonctl
+        run: npm i -g neonctl@1
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Prepare .env file
-        run: |
-          touch .env.local
-          cat $GITHUB_ENV >> .env.local
-          echo "DIRECT_URL=$(neonctl --api-key ${{ env.NEON_API_KEY }} --project-id ${{ env.NEON_PROJECT_ID }} connection-string ${{ env.NEON_MAIN_BRANCH_NAME }})" >> .env.local
-          echo "DATABASE_URL=$(neonctl --api-key ${{ env.NEON_API_KEY }} --pooled --project-id ${{ env.NEON_PROJECT_ID }} connection-string ${{ env.NEON_MAIN_BRANCH_NAME }})" >> .env.local
-
-      - name: Run Drizzle Migration
-        run: |
-          export SKIP_ENV_VALIDATION=true
-          bun run --env-file=.env.local db:migrate
-
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
 
-      - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ env.VERCEL_TOKEN }}
+      - name: Prepare $GITHUB_ENV
+        run: |
+          echo "DIRECT_URL=$(neonctl --api-key ${{ env.NEON_API_KEY }} --project-id ${{ env.NEON_PROJECT_ID }} connection-string ${{ env.NEON_MAIN_BRANCH_NAME }})" >> $GITHUB_ENV
+          echo "DATABASE_URL=$(neonctl --api-key ${{ env.NEON_API_KEY }} --pooled --project-id ${{ env.NEON_PROJECT_ID }} connection-string ${{ env.NEON_MAIN_BRANCH_NAME }})" >> $GITHUB_ENV
 
-      - name: Deploy Project Artifacts to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ env.VERCEL_TOKEN }}
+      - name: Run Drizzle Migration
+        run: |
+          bun run --env-file=$GITHUB_ENV db:migrate
+
+      - name: Build and Deploy to Vercel
+        id: deploy
+        run: |
+          touch .env.local
+          echo DATABASE_URL=${{ env.DATABASE_URL }} >> .env.local
+          echo CLERK_SECRET_KEY=${{ env.CLERK_SECRET_KEY }} >> .env.local
+          echo CLERK_WEBHOOK_SECRET=${{ env.CLERK_WEBHOOK_SECRET }} >> .env.local
+          echo NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }} >> .env.local
+          echo NEXT_PUBLIC_CLERK_SIGN_IN_URL=${{ env.NEXT_PUBLIC_CLERK_SIGN_IN_URL }} >> .env.local
+          echo NEXT_PUBLIC_CLERK_SIGN_UP_URL=${{ env.NEXT_PUBLIC_CLERK_SIGN_UP_URL }} >> .env.local
+          echo preview_url=$(eval "vercel deploy --prod --token=${{ env.VERCEL_TOKEN }} $(grep -v '^#' .env.local | grep '=' | awk '{print "-e " $0 " -b " $0}' | tr '\n' ' ')") >> $GITHUB_OUTPUT
