@@ -3,13 +3,18 @@ name: Deploy Preview
 on: [pull_request]
 
 env:
-  NEON_DATABASE_USERNAME: ${{ secrets.PG_USERNAME }} # change this to your database username
-  NEON_DATABASE_NAME: ${{ secrets.PG_DATABASE }} # change this to your database name
-  GH_TOKEN: ${{ secrets.GH_TOKEN }} # Required for commenting on pull requests for private repos
-  NEON_API_KEY: ${{ secrets.NEON_API_KEY }} # You can generate a an API key in your account settings
-  NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }} # You can find this in your project settings
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+  NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+  NEON_MAIN_BRANCH_NAME: ${{ secrets.NEON_MAIN_BRANCH_NAME }}
+  NEON_DATABASE_NAME: ${{ secrets.NEON_DATABASE_NAME }}
+  NEON_DATABASE_USERNAME: ${{ secrets.NEON_DATABASE_USERNAME }}
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
   CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+  CLERK_WEBHOOK_SECRET: ${{ secrets.CLERK_WEBHOOK_SECRET }}
+  NEXT_PUBLIC_CLERK_SIGN_IN_URL: ${{ secrets.NEXT_PUBLIC_CLERK_SIGN_IN_URL }}
+  NEXT_PUBLIC_CLERK_SIGN_UP_URL: ${{ secrets.NEXT_PUBLIC_CLERK_SIGN_UP_URL }}
 
 jobs:
   deploy-preview:
@@ -30,16 +35,19 @@ jobs:
       - name: Install Dependencies
         run: bun install
 
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@v8
 
       - name: Create Neon Branch
         id: create-branch
-        uses: neondatabase/create-branch-action@v4
+        uses: neondatabase/create-branch-action@v5
         with:
           project_id: ${{ env.NEON_PROJECT_ID }}
-          parent: main
+          parent: ${{ env.NEON_MAIN_BRANCH_NAME }}
           branch_name: preview/pr-${{ github.event.number }}-${{ steps.branch-name.outputs.current_branch }}
           username: ${{ env.NEON_DATABASE_USERNAME }}
           database: ${{ env.NEON_DATABASE_NAME }}
@@ -47,24 +55,18 @@ jobs:
 
       - name: Prepare .env file
         run: |
-          touch .env
-          echo DATABASE_URL=${{ steps.create-branch.outputs.db_url_with_pooler }}?sslmode=require >> .env
-          echo DIRECT_URL=${{ steps.create-branch.outputs.db_url }}?sslmode=require >> .env
+          touch .env.local
+          cat $GITHUB_ENV >> .env.local
+          echo DATABASE_URL=${{ steps.create-branch.outputs.db_url_with_pooler }}?sslmode=require >> .env.local
+          echo DIRECT_URL=${{ steps.create-branch.outputs.db_url }}?sslmode=require >> .env.local
 
       - name: Run Drizzle Migration
         run: |
-          export SKIP_ENV_VALIDATION=true
-          export DATABASE_URL=${{ steps.create-branch.outputs.db_url_with_pooler }}?sslmode=require
-          bun run db:migrate
+          bun run --env-file=.env.local db:migrate
 
-      - name: Update DB user IDs to match Clerk development environment
-        run: |
-          export SKIP_ENV_VALIDATION=true
-          export DATABASE_URL=${{ steps.create-branch.outputs.db_url_with_pooler }}?sslmode=require
-          bun run db:update-users-prod-to-dev
-
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+      # - name: Update DB user IDs to match Clerk development environment (only neccessary if there is a production Clerk environment)
+      #   run: |
+      #     bun run --env-file=.env.local db:update-users-prod-to-dev
 
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --token=${{ env.VERCEL_TOKEN }}
@@ -82,4 +84,4 @@ jobs:
           GITHUB_TOKEN: ${{ env.GH_TOKEN }}
           message: |
             Vercel Preview URL :rocket: : ${{ steps.deploy.outputs.preview_url }}
-            Neon branch :elephant: : https://console.neon.tech/app/projects/${{ env.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }}
+            Neon branch :elephant: : https://console.neon.tech/app/projects/$NEON_PROJECT_ID/branches/${{ steps.create-branch.outputs.branch_id }}

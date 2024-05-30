@@ -11,6 +11,11 @@
 
 Make sure you have Docker installed and running on your machine, then run the following command to start the database:
 
+```
+vercel link --yes
+vercel env pull .env.local --yes --environment=development
+```
+
 ```bash
 bun run db:reset
 ```
@@ -33,3 +38,17 @@ Get your user details from Clerk and add them to `src/server/db/seed.ts`. You sh
 ### Setting up GH Action, Deploying to Vercel
 
 ### Syncing Clerk with your database
+
+```
+https://{{YOUR_PROJECT}}.vercel.app/api/clerk-auth/sync
+```
+
+Subscribe to the following events:
+
+```
+user.deleted
+user.created
+user.updated
+```
+
+Get the signing secret from Clerk and add it to the GH secrets
