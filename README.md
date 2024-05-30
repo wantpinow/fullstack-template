@@ -56,3 +56,4 @@ Get the signing secret from Clerk and add it to the GH secrets
 ### todo:
 
 - [ ] GitHub action to test production build on PR (makes sure env vars are defined properly before merging)
+- [ ] Make build+deploy command fail action if build / deploy fails
