@@ -93,7 +93,6 @@ jobs:
           echo NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }} >> .env.local
           echo NEXT_PUBLIC_CLERK_SIGN_IN_URL=${{ env.NEXT_PUBLIC_CLERK_SIGN_IN_URL }} >> .env.local
           echo NEXT_PUBLIC_CLERK_SIGN_UP_URL=${{ env.NEXT_PUBLIC_CLERK_SIGN_UP_URL }} >> .env.local
-
           echo preview_url=$(eval "vercel deploy --token=${{ env.VERCEL_TOKEN }} $(grep -v '^#' .env.local | grep '=' | awk '{print "-e " $0 " -b " $0}' | tr '\n' ' ')") >> $GITHUB_ENV
 
       - name: Comment on Pull Request
