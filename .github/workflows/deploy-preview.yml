@@ -38,6 +38,9 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ env.VERCEL_TOKEN }}
+
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@v8
@@ -53,23 +56,20 @@ jobs:
           database: ${{ env.NEON_DATABASE_NAME }}
           api_key: ${{ env.NEON_API_KEY }}
 
-      - name: Prepare .env file
+      - name: Prepare .env.local file
         run: |
-          touch .env
-          cat $GITHUB_ENV >> .env
-          echo DATABASE_URL=${{ steps.create-branch.outputs.db_url_with_pooler }}?sslmode=require >> .env
-          echo DIRECT_URL=${{ steps.create-branch.outputs.db_url }}?sslmode=require >> .env
+          touch .env.local
+          cat $GITHUB_ENV >> .env.local
+          echo DATABASE_URL=${{ steps.create-branch.outputs.db_url_with_pooler }}?sslmode=require >> .env.local
+          echo DIRECT_URL=${{ steps.create-branch.outputs.db_url }}?sslmode=require >> .env.local
 
       - name: Run Drizzle Migration
         run: |
-          bun run --env-file=.env db:migrate
+          bun run --env-file=.env.local db:migrate
 
       # - name: Update DB user IDs to match Clerk development environment (only neccessary if there is a production Clerk environment)
       #   run: |
-      #     bun run --env-file=.env db:update-users-prod-to-dev
-
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --token=${{ env.VERCEL_TOKEN }}
+      #     bun run --env-file=.env.local db:update-users-prod-to-dev
 
       - name: Build Project Artifacts
         run: vercel build --token=${{ env.VERCEL_TOKEN }}

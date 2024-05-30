@@ -41,20 +41,20 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Prepare .env file
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
+
+      - name: Prepare .env.local file
         run: |
-          touch .env
-          cat $GITHUB_ENV >> .env
-          echo "DIRECT_URL=$(neonctl --api-key ${{ env.NEON_API_KEY }} --project-id ${{ env.NEON_PROJECT_ID }} connection-string ${{ env.NEON_MAIN_BRANCH_NAME }})" >> .env
-          echo "DATABASE_URL=$(neonctl --api-key ${{ env.NEON_API_KEY }} --pooled --project-id ${{ env.NEON_PROJECT_ID }} connection-string ${{ env.NEON_MAIN_BRANCH_NAME }})" >> .env
+          touch .env.local
+          cat $GITHUB_ENV >> .env.local
+          echo "DIRECT_URL=$(neonctl --api-key ${{ env.NEON_API_KEY }} --project-id ${{ env.NEON_PROJECT_ID }} connection-string ${{ env.NEON_MAIN_BRANCH_NAME }})" >> .env.local
+          echo "DATABASE_URL=$(neonctl --api-key ${{ env.NEON_API_KEY }} --pooled --project-id ${{ env.NEON_PROJECT_ID }} connection-string ${{ env.NEON_MAIN_BRANCH_NAME }})" >> .env.local
 
       - name: Run Drizzle Migration
         run: |
           export SKIP_ENV_VALIDATION=true
-          bun run --env-file=.env db:migrate
-
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
+          bun run --env-file=.env.local db:migrate
 
       - name: Build Project Artifacts
         run: vercel build --prod --token=${{ env.VERCEL_TOKEN }}
