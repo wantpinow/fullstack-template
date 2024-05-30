@@ -69,12 +69,17 @@ jobs:
       #   run: |
       #     bun run --env-file=$GITHUB_ENV db:update-users-prod-to-dev
 
-      - name: Build Project Artifacts
-        run: vercel build --token=${{ env.VERCEL_TOKEN }}
+      # - name: Build Project Artifacts
+      #   run: vercel build --token=${{ env.VERCEL_TOKEN }}
 
-      - name: Deploy Preview to Vercel
+      # - name: Deploy Preview to Vercel
+      #   id: deploy
+      #   run: echo preview_url=$(vercel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }} -e CLERK_SECRET_KEY=${{ env.CLERK_SECRET_KEY }}) >> $GITHUB_OUTPUT
+
+      - name: Build and Deploy to Vercel
         id: deploy
-        run: echo preview_url=$(vercel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }} -e CLERK_SECRET_KEY=${{ env.CLERK_SECRET_KEY }}) >> $GITHUB_OUTPUT
+        run: |
+          echo preview_url=$(eval "vercel deploy --token=${{ env.VERCEL_TOKEN }} $(grep -v '^#' $GITHUB_ENV | grep '=' | awk '{print "-e " $0 " -b " $0}' | tr '\n' ' ')") >> $GITHUB_ENV
 
       - name: Comment on Pull Request
         uses: thollander/actions-comment-pull-request@v2
