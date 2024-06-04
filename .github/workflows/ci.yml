@@ -16,3 +16,19 @@ jobs:
 
       - name: Install Dependencies
         run: bun install
+
+      - name: Generate drizzle schema changes
+        run: bun run db:generate
+
+      - name: Check for uncommitted changes in ./drizzle
+        run: |
+          if [[ -n $(git status --porcelain ./drizzle) ]]; then
+            echo "Uncommitted changes detected in ./drizzle"
+            git status ./drizzle
+            exit 1
+          else
+            echo "No uncommitted changes in ./drizzle"
+          fi
+
+      - name: Run Linter
+        run: bun run lint
