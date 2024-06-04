@@ -7,9 +7,9 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { SITE_CONFIG } from "~/lib/config";
 
 import { iconNames } from "./icons";
-import { SITE_CONFIG } from "~/lib/config";
 
 // multi-project schema
 export const createTable = pgTableCreator(
@@ -47,6 +47,9 @@ export const yeets = createTable("yeet", {
   icon: iconEnum("icon").notNull(),
   public: boolean("public").default(false).notNull(),
   createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 });
