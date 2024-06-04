@@ -9,10 +9,11 @@ import {
 } from "drizzle-orm/pg-core";
 
 import { iconNames } from "./icons";
+import { SITE_CONFIG } from "~/lib/config";
 
 // multi-project schema
 export const createTable = pgTableCreator(
-  (name) => `fullstack_template_${name}`,
+  (name) => `${SITE_CONFIG.pg_table_prefix}_${name}`,
 );
 
 // icon type
