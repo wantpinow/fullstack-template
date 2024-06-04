@@ -3,7 +3,7 @@ name: Deploy Preview
 on: [pull_request]
 
 jobs:
-  deploy-preview:
+  run-ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -13,6 +13,9 @@ jobs:
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
+
+      - name: Skip Environment Validation
+        run: echo "SKIP_ENV_VALIDATION=true" > $GITHUB_ENV
 
       - name: Install Dependencies
         run: bun install
