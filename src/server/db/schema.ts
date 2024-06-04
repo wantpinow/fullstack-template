@@ -49,9 +49,6 @@ export const yeets = createTable("yeet", {
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
-  updatedAt: timestamp("updated_at")
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
 });
 
 export const yeetsRelations = relations(yeets, ({ one }) => ({
