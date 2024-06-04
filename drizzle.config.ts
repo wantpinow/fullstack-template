@@ -1,12 +1,13 @@
 import { type Config } from "drizzle-kit";
 import { env } from "~/env";
+import { SITE_CONFIG } from "~/lib/config";
 
 export default {
   schema: "./src/server/db/schema.ts",
   out: "./drizzle",
-  driver: "pg",
+  dialect: "postgresql",
   dbCredentials: {
-    connectionString: env.DATABASE_URL,
+    url: env.DATABASE_URL,
   },
-  tablesFilter: ["fullstack_template_*"],
+  tablesFilter: [`${SITE_CONFIG.pg_table_prefix}_*`],
 } satisfies Config;

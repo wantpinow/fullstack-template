@@ -7,12 +7,13 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { SITE_CONFIG } from "~/lib/config";
 
 import { iconNames } from "./icons";
 
 // multi-project schema
 export const createTable = pgTableCreator(
-  (name) => `fullstack_template_${name}`,
+  (name) => `${SITE_CONFIG.pg_table_prefix}_${name}`,
 );
 
 // icon type

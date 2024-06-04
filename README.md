@@ -1,58 +1,71 @@
-- replace all fullstack_template references with your project name
+# fullstack_template
 
-### Setting up Clerk
+## Setup
 
-- [ ] Sign up for a Clerk account
-- [ ] Create a new project. This project is set up for the `email` provider only. Make sure that the `personal_information -> name` option is set and required for all users. You can (and should) add more providers, just make sure that they have the name field set and required.
-- [ ] Add development NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY to `.env`
-- [ ] Create a production Clerk instance
+### Clone and Deploy
 
-### Running Locally
+To get started, clone the repository and create a new project in Vercel. We've turned off Vercel's auto-build feature, so this won't do anything yet, but it will give us a URL to use in the next steps.
 
-Make sure you have Docker installed and running on your machine, then run the following command to start the database:
+### Rename "fullstack_template" References
 
+In your cloned project, replace all instances of `fullstack_template` with your project name. This shouldn't (🤞) break anything.
+
+### Setup Integrations and Secrets
+
+Copy the `.env.local.example` file to `.env.local` and fill in the values. This will involve setting up Clerk and Neon projects.
+
+#### Clerk Setup
+
+Create a new project in Clerk. Once that's done, do the following:
+
+- [ ] Add the development secret and publishable keys to your `.env.local` file.
+- [ ] Restrict the providers to `email` only. You can add more social providers later, but for now, we're just using email.
+- [ ] Make sure that the `personal_information -> name` option is set and required for all users.
+- [ ] Set up a webhook to sync Clerk with your database. You should use the following parameters when setting the webhook:
+  - URL: `{YOUR_VERCEL_URL}/api/clerk-auth/sync`
+  - Events: `user.deleted`, `user.created`, `user.updated`
+- [ ] Add the webhook signing secret to your `.env.local` file.
+      For now, we won't create a separate production instance as that requires a custom domain. You can do that later.
+
+#### Neon Setup
+
+Create a new project in Neon. Then, do the following:
+
+- [ ] Add the Neon project ID to your `.env.local` file.
+- [ ] Generate a Neon API key and add it to your `.env.local` file.
+
+#### Vercel Setup
+
+You need a Vercel access token to build and deploy via CI/CD. Generate one and add it to the `.env.local` file for now.
+
+### Add Secrets to GitHub
+
+Now that your `.env.local` file is set up, you need to add the secrets to GitHub. Follow the instructions in `.env.local.example` to see which secrets you need to add, and to which environments.
+
+### Deploy
+
+With all the secrets set up, you can now deploy your project to Vercel. Create an empty commit and push it to your repository. This should trigger a build and deploy to Vercel.
+
+### Create Your First User
+
+To make sure that everything's working, create an account on your production deployment. Once you've logged in you should be able to use the application.
+
+### Run Locally
+
+Install the dependencies:
+
+```bash
+bun install
 ```
-vercel link --yes
-vercel env pull .env.local --yes --environment=development
-```
+
+Update the `users` part of `src/server/db/seed.ts` with the account that you created in `Clerk`. Then run a local postgres server (with Docker running):
 
 ```bash
 bun run db:reset
 ```
 
-```
+Start the server:
+
+```bash
 bun dev
 ```
-
-Create a user in the dev environment.
-
-### Seeding Locally
-
-Get your user details from Clerk and add them to `src/server/db/seed.ts`. You should now be able to add yeets locally.
-
-### Set up Neon
-
-- [ ] Sign up for a Neon account
-- [ ] Create a new project
-
-### Setting up GH Action, Deploying to Vercel
-
-### Syncing Clerk with your database
-
-```
-https://{{YOUR_PROJECT}}.vercel.app/api/clerk-auth/sync
-```
-
-Subscribe to the following events:
-
-```
-user.deleted
-user.created
-user.updated
-```
-
-Get the signing secret from Clerk and add it to the GH secrets
-
-### todo:
-
-- [ ] GitHub action to test production build on PR (makes sure env vars are defined properly before merging)

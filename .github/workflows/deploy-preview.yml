@@ -87,4 +87,4 @@ jobs:
           GITHUB_TOKEN: ${{ env.GH_TOKEN }}
           message: |
             Vercel Preview URL :rocket: : ${{ steps.deploy.outputs.preview_url }}
-            Neon branch :elephant: : https://console.neon.tech/app/projects/$NEON_PROJECT_ID/branches/${{ steps.create-branch.outputs.branch_id }}
+            Neon branch :elephant: : https://console.neon.tech/app/projects/${{ env.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }}
