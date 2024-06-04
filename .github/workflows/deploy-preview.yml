@@ -10,9 +10,9 @@ env:
   NEON_MAIN_BRANCH_NAME: ${{ secrets.NEON_MAIN_BRANCH_NAME }}
   NEON_DATABASE_NAME: ${{ secrets.NEON_DATABASE_NAME }}
   NEON_DATABASE_USERNAME: ${{ secrets.NEON_DATABASE_USERNAME }}
-  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-  CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
-  CLERK_WEBHOOK_SECRET: ${{ secrets.CLERK_WEBHOOK_SECRET }}
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY_PREVIEW }}
+  CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY_PREVIEW }}
+  CLERK_WEBHOOK_SECRET: ${{ secrets.CLERK_WEBHOOK_SECRET_PREVIEW }}
   NEXT_PUBLIC_CLERK_SIGN_IN_URL: ${{ secrets.NEXT_PUBLIC_CLERK_SIGN_IN_URL }}
   NEXT_PUBLIC_CLERK_SIGN_UP_URL: ${{ secrets.NEXT_PUBLIC_CLERK_SIGN_UP_URL }}
 
@@ -20,9 +20,6 @@ jobs:
   deploy-preview:
     permissions: write-all
     runs-on: ubuntu-latest
-    environment:
-      name: Preview
-      url: ${{ steps.deploy.outputs.preview_url }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
