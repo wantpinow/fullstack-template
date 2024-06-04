@@ -40,7 +40,7 @@ You need a Vercel access token to build and deploy via CI/CD. Generate one and a
 
 ### Add Secrets to GitHub
 
-Now that your `.env.local` file is set up, you need to add the secrets to GitHub. Follow the instructions in `.env.local.example` to see which secrets you need to add, and to which environments.
+Now that your `.env.local` file is set up, you need to add the secrets to GitHub. Follow the instructions in `.env.local.example` to see which secrets you need to add. Note that some secrets should be suffixed with \_PREVIEW / \_PRODUCTION to indicate which environment they're for.
 
 ### Deploy
 
